@@ -1,0 +1,8 @@
+---
+# Applies the default OS configuration (currently the Windows Firewall rules) to every host.
+
+- name: Apply default OS configuration
+  hosts: all
+  gather_facts: false
+  roles:
+    - role: defos

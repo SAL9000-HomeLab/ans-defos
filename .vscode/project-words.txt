@@ -1,0 +1,4 @@
+DEFOS
+defo
+eventlogs
+remoteadmin

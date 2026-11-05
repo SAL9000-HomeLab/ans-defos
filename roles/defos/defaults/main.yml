@@ -1,0 +1,24 @@
+# SPDX-License-Identifier: MIT-0
+---
+# --- defaults file for roles/defos ---
+
+# --- Settings for ans-settings role ---
+defos_event_log_name: 'Application'
+defos_event_source_name: 'SAL9000 WinSvcs'
+
+# --- Local Administrators group membership ---
+defos_enable_local_admin_group: true
+# Domain group granted local administrator rights, keyed by AD domain. Membership
+# is added, not set, so accounts already in local Administrators are left alone.
+# Hosts that are not domain-joined, or that are joined to a domain absent from
+# this map, are skipped. Set the real map on the AWX inventory or group, e.g.
+#   defos_local_admin_groups:
+#     ad.example.com: 'EXAMPLE\ServerAdmins'
+defos_local_admin_groups: {}
+
+# --- Firewall Rules ---
+# RDP
+defos_enable_rdp_mgmt: true
+
+# Remote Admin
+defos_enable_remote_admin_base: true

@@ -1,0 +1,21 @@
+---
+# Roles and collections the defos role needs. ansible-galaxy installs a role from git by finding its meta/main.yml,
+# so each source repository may keep its single role under roles/<name>/. The role repositories are public and
+# installed over https, so CI and AWX project syncs need no credentials for them.
+roles:
+  - name: ans_firewall
+    src: https://github.com/SAL9000-HomeLab/ans-firewall.git
+    scm: git
+    version: main
+  - name: ans_local_accounts
+    src: https://github.com/SAL9000-HomeLab/ans-local-accounts.git
+    scm: git
+    version: main
+
+collections:
+  - name: ansible.posix
+    version: ">=1.5.0,<3.0.0"
+  - name: ansible.windows
+    version: ">=3.0.0,<4.0.0"
+  - name: community.windows
+    version: ">=3.0.0,<4.0.0"
