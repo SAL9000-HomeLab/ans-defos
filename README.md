@@ -1,17 +1,16 @@
 # ans-defos
 
-Default OS configuration for Windows Server hosts. The `defos` role applies each part of the baseline by including
-the role that owns it, each under its own tag. Run `site.yml` from AWX.
+Default OS configuration for Linux and Windows hosts. The `defos` role applies each part of the baseline by including
+the role that owns it, each with its own toggle and tag. Run `site.yml` from Ascender.
 
-| Part | Role | Tag |
-| --- | --- | --- |
-| Windows Firewall | `ans_firewall` ([ans-firewall]) | `firewall` |
-| Local users and groups | `ans_local_accounts` ([ans-local-accounts]) | `local-accounts` |
+| Part | Role | Toggle | Tag | Linux | Windows |
+| --- | --- | --- | --- | --- | --- |
+| Firewall | `ans_firewall` ([ans-firewall]) | `defos_enable_firewall` | `firewall` | firewalld on Rocky, opt-in | Yes |
+| Local users and groups | `ans_local_accounts` ([ans-local-accounts]) | `defos_enable_local_accounts` | `local-accounts` | Yes | Yes, except creating users |
 
-Base settings, event logs and remote administration are planned (commented out in
-[roles/defos/tasks/main.yml](roles/defos/tasks/main.yml)).
+The tags of the included roles also work from here, such as `rdp` or `firewalld`.
 
-The inventory in [inventory/hosts.yml](inventory/hosts.yml) is a placeholder. Put your real hosts in the AWX
+The inventory in [inventory/hosts.yml](inventory/hosts.yml) is a placeholder. Put your real hosts in the Ascender
 inventory, or in a gitignored `local/` copy for workstation runs.
 
 ## Requirements
@@ -21,19 +20,31 @@ inventory, or in a gitignored `local/` copy for workstation runs.
 | ansible-core | >= 2.16 |
 | Python | >= 3.10 |
 
-- Target hosts: Windows Server 2019, 2022 or 2025, reached over PSRP (Kerberos, HTTPS). The controller needs the
+- Linux targets: RHEL/Rocky 9 and 10 and Ubuntu 24.04, reached over SSH with `become`. Ubuntu gets local accounts only.
+- Windows targets: Windows Server 2019, 2022 or 2025, reached over PSRP (Kerberos, HTTPS). The controller needs the
   Python packages in [requirements.txt](requirements.txt).
 - Collections: from [requirements.yml](requirements.yml).
 - Roles: from [requirements.yml](requirements.yml), installed from git. `ansible-galaxy` finds each role by its
   `meta/main.yml`, so a source repository can keep its single role under `roles/<name>/`. The role repositories are
-  public and installed over https, so AWX project syncs and CI need no credentials for them.
+  public and installed over https, so Ascender project syncs and CI need no credentials for them.
 
 ## Inventory
 
-[site.yml](site.yml) runs on every host in the inventory. The example groups hosts under `windows` by version
-(`windows_2019`, `windows_2022`, `windows_2025`) and by install type (`windows_core`, `windows_gui`), with the PSRP
-connection settings on `windows`. Settings for an included role, such as `ans_firewall_mgmt_ips` or
-`ans_local_accounts_groups`, go on the inventory or group as usual.
+[site.yml](site.yml) runs on the `linux` group with `become` and on the `windows` group, with the connection settings
+on each group. Hosts in neither group are left alone.
+
+Set each role's variables directly on the inventory, group or host, such as `ans_firewall_mgmt_ips` or
+`ans_local_accounts_groups`. Use these rather than job template extra vars, which override every level for every host
+in the job.
+
+A list set at two levels is replaced, not merged: a host's `ans_local_accounts_users` replaces its group's.
+
+Windows Firewall rules are on by default and need `ans_firewall_mgmt_ips`. To use firewalld, set
+`ans_firewall_firewalld_enabled: true` on the group; leave it off for hosts that run with firewalld off, such as RKE2
+nodes.
+
+**Lockout risk:** `ans_firewall_mgmt_ips` must include the address Ascender jobs connect from. Try a change on one host
+with a job limit first.
 
 ## Development and CI
 

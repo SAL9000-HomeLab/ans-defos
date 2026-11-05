@@ -1,12 +1,14 @@
-# SPDX-License-Identifier: MIT-0
 ---
-# --- defaults file for roles/defos ---
+# roles/defos/defaults/main.yml
+#
+# Each role has its own settings (ans_firewall_*, ans_local_accounts_*): set them directly on the inventory, group or
+# host. They are not passed through this role, because include_role vars would override what the inventory sets.
 
-# --- Settings for ans-settings role ---
-defos_event_log_name: 'Application'
-defos_event_source_name: 'SAL9000 WinSvcs'
+# --- Which roles to apply ---
+defos_enable_firewall: true
+defos_enable_local_accounts: true
 
-# --- Local Administrators group membership ---
+# --- Local Administrators group membership (Windows) ---
 defos_enable_local_admin_group: true
 # Domain group granted local administrator rights, keyed by AD domain. Membership
 # is added, not set, so accounts already in local Administrators are left alone.
@@ -15,10 +17,3 @@ defos_enable_local_admin_group: true
 #   defos_local_admin_groups:
 #     ad.example.com: 'EXAMPLE\ServerAdmins'
 defos_local_admin_groups: {}
-
-# --- Firewall Rules ---
-# RDP
-defos_enable_rdp_mgmt: true
-
-# Remote Admin
-defos_enable_remote_admin_base: true

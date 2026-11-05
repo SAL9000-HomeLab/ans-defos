@@ -1,4 +1,9 @@
 DEFOS
 defo
 eventlogs
+hostvars
+localadmin
+mgmt
+pscustomobject
 remoteadmin
+Svcs

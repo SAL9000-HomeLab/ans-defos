@@ -42,15 +42,7 @@
         "Serman",
         "urlencode",
         "venv",
-        "yamllint",
-        "mgmt",
-        "Svcs",
-        "hostvars",
-        "pscustomobject",
-        "localadmin",
-        "ADWS",
-        "HKLM",
-        "timesync"
+        "yamllint"
     ],
     "flagWords": [
         "hte"
