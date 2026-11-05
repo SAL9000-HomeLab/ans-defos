@@ -1,17 +1,25 @@
 ---
 galaxy_info:
   author: Roland Serman
-  description: Default OS configuration for Windows Server hosts, composed from other roles
+  description: Default OS configuration for Linux and Windows hosts, composed from other roles
   company: SAL9000 HomeLab
-  license: MIT-0
+  license: MIT
   min_ansible_version: "2.16"
   platforms:
+    - name: EL
+      versions:
+        - "9"
+        - "10"
+    - name: Ubuntu
+      versions:
+        - noble
     - name: Windows
       versions:
         - "2019"
         - "2022"
         - "2025"
   galaxy_tags:
+    - linux
     - windows
 
 dependencies: []

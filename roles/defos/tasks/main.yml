@@ -1,89 +1,54 @@
-# SPDX-License-Identifier: MIT-0
 ---
-# tasks file for roles/ans_defos
-- name: Configure Windows Firewall
+# roles/defos/tasks/main.yml
+#
+# Each part of the baseline is its own role, and each role handles the OS differences itself. include_role is dynamic,
+# so `apply` passes the tags on to the role's tasks; without it, --tags local-accounts would run the include and skip
+# everything in it. The tag list on the include is what lets a role's own tags be selected from here.
+
+- name: Configure the firewall
   ansible.builtin.include_role:
     name: ans_firewall
-  tags: [firewall]
+    apply:
+      tags: [firewall]
+  when: defos_enable_firewall | bool
+  tags: [firewall, builtin, rdp, remoteadmin, ssh, mssql, sql, firewalld, validate]
 
-- name: Include settings role
-  ansible.builtin.include_role:
-    name: ans_settings
-  vars:
-    ans_settings_event_log_name: "{{ defos_event_log_name }}"
-    ans_settings_event_source_name: "{{ defos_event_source_name }}"
-  tags: [eventlogs, custom_source, firewall-config, timesync]
-
-- name: Include firewall rules role
-  ansible.builtin.include_role:
-    name: ans_firewall
-  vars:
-    ans_firewall_enable_rdp_mgmt: "{{ defos_enable_rdp_mgmt }}"
-    ans_firewall_enable_remote_admin_base: "{{ defos_enable_remote_admin_base }}"
-  tags: []
-
-- name: Read event log source registry key
-  ansible.windows.win_reg_stat:
-    path: >-
-      HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\{{-
-      defos_event_log_name }}\{{-
-      defos_event_source_name }}
-  register: defos_eventlog_source
-  tags: [eventlogs, custom_source]
-
-- name: Display event log source registry key and values
-  ansible.builtin.debug:
-    msg:
-      - >-
-        Registry key :
-        HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\{{
-        defos_event_log_name }}\{{
-        defos_event_source_name }}
-      - "Key exists   : {{ defos_eventlog_source.exists }}"
-      - >-
-        EventMessageFile :
-        {{
-        defos_eventlog_source.properties.EventMessageFile.value
-        | default('N/A') }}
-  tags: [eventlogs, custom_source]
-
-# --- Local Administrators group membership ---
-# The domain is read locally rather than from Active Directory so this needs no
-# ADWS access and therefore no credential delegation from the controller.
-- name: Detect Active Directory domain membership
-  ansible.windows.win_powershell:
-    script: |
-      $Ansible.Changed = $false
-      $cs = Get-CimInstance -ClassName Win32_ComputerSystem
-      [pscustomobject]@{
-        Domain       = $cs.Domain
-        PartOfDomain = [bool]$cs.PartOfDomain
-      }
-  register: defos_domain_info
-  changed_when: false
-  tags: [localadmin-group]
-
-- name: Add the domain administrators group to local Administrators
-  ansible.windows.win_group_membership:
-    name: Administrators
-    members:
-      - "{{ defos_local_admin_groups[defos_domain_info.output[0].Domain] }}"
-    state: present
-  when:
-    - defos_enable_local_admin_group | bool
-    - defos_domain_info.output[0].PartOfDomain | bool
-    - >-
-      defos_domain_info.output[0].Domain in
-      defos_local_admin_groups
-  tags: [localadmin-group]
-
-# --- Local users and groups ---
-# Settings are the role's own variables (ans_local_accounts_groups, ans_local_accounts_users, ...), set on the
-# inventory or group. include_role is dynamic, so `apply` passes the tag on to the role's tasks; without it,
-# --tags local-accounts would run the include and skip everything in it.
 - name: Manage local users and groups
   ansible.builtin.include_role:
     name: ans_local_accounts
     apply:
       tags: [local-accounts]
+  when: defos_enable_local_accounts | bool
   tags: [local-accounts]
+
+# --- Local Administrators group membership (Windows) ---
+# The domain is read locally rather than from Active Directory so this needs no
+# ADWS access and therefore no credential delegation from the controller.
+- name: Add the domain administrators group to local Administrators
+  when:
+    - ansible_facts['os_family'] == 'Windows'
+    - defos_enable_local_admin_group | bool
+    - defos_local_admin_groups | length > 0
+  tags: [localadmin-group]
+  block:
+    - name: Detect Active Directory domain membership
+      ansible.windows.win_powershell:
+        script: |
+          $Ansible.Changed = $false
+          $cs = Get-CimInstance -ClassName Win32_ComputerSystem
+          [pscustomobject]@{
+            Domain       = $cs.Domain
+            PartOfDomain = [bool]$cs.PartOfDomain
+          }
+      register: defos_domain_info
+      changed_when: false
+
+    - name: Add the group for this host's domain
+      ansible.windows.win_group_membership:
+        name: Administrators
+        members:
+          - "{{ defos_local_admin_groups[defos_domain_info.output[0].Domain] }}"
+        state: present
+      when:
+        - defos_domain_info.output[0].PartOfDomain | bool
+        - defos_domain_info.output[0].Domain in defos_local_admin_groups
