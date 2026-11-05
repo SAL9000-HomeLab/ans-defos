@@ -6,11 +6,11 @@ roles:
   - name: ans_firewall
     src: https://github.com/SAL9000-HomeLab/ans-firewall.git
     scm: git
-    version: feat/firewalld-and-windows-fixes
+    version: main
   - name: ans_local_accounts
     src: https://github.com/SAL9000-HomeLab/ans-local-accounts.git
     scm: git
-    version: feat/windows-authorized-keys
+    version: main
 
 collections:
   - name: ansible.posix
