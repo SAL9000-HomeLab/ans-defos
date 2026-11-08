@@ -12,13 +12,3 @@ defos_enable_features: true
 defos_enable_packages: true
 defos_enable_firewall: true
 defos_enable_local_accounts: true
-
-# --- Local Administrators group membership (Windows) ---
-defos_enable_local_admin_group: true
-# Domain group granted local administrator rights, keyed by AD domain. Membership
-# is added, not set, so accounts already in local Administrators are left alone.
-# Hosts that are not domain-joined, or that are joined to a domain absent from
-# this map, are skipped. Set the real map on the AWX inventory or group, e.g.
-#   defos_local_admin_groups:
-#     ad.example.com: 'EXAMPLE\ServerAdmins'
-defos_local_admin_groups: {}

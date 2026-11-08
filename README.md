@@ -59,6 +59,17 @@ ans_packages_powershell: present
 
 A list set at two levels is replaced, not merged: a host's `ans_local_accounts_users` replaces its group's.
 
+All local users and groups, including domain groups in local Administrators, are set through `ans_local_accounts`.
+On Windows, domain members a host cannot resolve (not joined, or no domain controller reachable) are reported and
+skipped, so the same list works for every Windows host:
+
+```yaml
+# windows group
+ans_local_accounts_groups:
+  - name: Administrators
+    members: ['EXAMPLE\ServerAdmins']
+```
+
 Windows Firewall rules are on by default and need `ans_firewall_mgmt_ips`. To use firewalld, set
 `ans_firewall_firewalld_enabled: true` on the group; leave it off for hosts that run with firewalld off, such as RKE2
 nodes.
