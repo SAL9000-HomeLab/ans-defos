@@ -5,6 +5,10 @@ pushing a `vX.Y.Z` tag; the release workflow publishes the matching section.
 
 ## [Unreleased]
 
+- Removed: The task that added a domain group to local Administrators (tag `localadmin-group`), with
+  `defos_enable_local_admin_group` and `defos_local_admin_groups`. `ans_local_accounts` manages all local users and
+  groups, and now skips domain members a host cannot resolve. Move the setting to the `windows` group as
+  `ans_local_accounts_groups: [{name: Administrators, members: ['DOMAIN\Group']}]`.
 - Added: The role includes `ans_features` (from ans-features, tag `features`) on Windows, to add and remove Windows
   features such as OpenSSH Server and Telnet Client, and `ans_packages` (from ans-packages, tag `packages`) to install
   and remove packages such as PowerShell 7. Toggles `defos_enable_features` and `defos_enable_packages`; both run before

@@ -40,35 +40,3 @@
       tags: [local-accounts]
   when: defos_enable_local_accounts | bool
   tags: [local-accounts]
-
-# --- Local Administrators group membership (Windows) ---
-# The domain is read locally rather than from Active Directory so this needs no
-# ADWS access and therefore no credential delegation from the controller.
-- name: Add the domain administrators group to local Administrators
-  when:
-    - ansible_facts['os_family'] == 'Windows'
-    - defos_enable_local_admin_group | bool
-    - defos_local_admin_groups | length > 0
-  tags: [localadmin-group]
-  block:
-    - name: Detect Active Directory domain membership
-      ansible.windows.win_powershell:
-        script: |
-          $Ansible.Changed = $false
-          $cs = Get-CimInstance -ClassName Win32_ComputerSystem
-          [pscustomobject]@{
-            Domain       = $cs.Domain
-            PartOfDomain = [bool]$cs.PartOfDomain
-          }
-      register: defos_domain_info
-      changed_when: false
-
-    - name: Add the group for this host's domain
-      ansible.windows.win_group_membership:
-        name: Administrators
-        members:
-          - "{{ defos_local_admin_groups[defos_domain_info.output[0].Domain] }}"
-        state: present
-      when:
-        - defos_domain_info.output[0].PartOfDomain | bool
-        - defos_domain_info.output[0].Domain in defos_local_admin_groups
