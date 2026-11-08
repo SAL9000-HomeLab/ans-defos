@@ -5,6 +5,11 @@ pushing a `vX.Y.Z` tag; the release workflow publishes the matching section.
 
 ## [Unreleased]
 
+- Added: The role includes `ans_features` (from ans-features, tag `features`) on Windows, to add and remove Windows
+  features such as OpenSSH Server and Telnet Client, and `ans_packages` (from ans-packages, tag `packages`) to install
+  and remove packages such as PowerShell 7. Toggles `defos_enable_features` and `defos_enable_packages`; both run before
+  the firewall and local accounts, and change nothing until their per-feature and per-package variables are set.
+- Changed: `ansible.windows` is at least 3.6.0, which `ans_features` needs for `win_capability`.
 - Added: Linux support. `site.yml` has a play for the `linux` group (with `become`) and one for the `windows` group,
   replacing `hosts: all`, and Windows-only tasks are skipped on Linux.
 - Added: `defos_enable_firewall` and `defos_enable_local_accounts` toggles.

@@ -3,6 +3,14 @@
 # so each source repository may keep its single role under roles/<name>/. The role repositories are public and
 # installed over https, so CI and AWX project syncs need no credentials for them.
 roles:
+  - name: ans_features
+    src: https://github.com/SAL9000-HomeLab/ans-features.git
+    scm: git
+    version: main
+  - name: ans_packages
+    src: https://github.com/SAL9000-HomeLab/ans-packages.git
+    scm: git
+    version: main
   - name: ans_firewall
     src: https://github.com/SAL9000-HomeLab/ans-firewall.git
     scm: git
@@ -16,6 +24,6 @@ collections:
   - name: ansible.posix
     version: ">=1.5.0,<3.0.0"
   - name: ansible.windows
-    version: ">=3.1.0,<4.0.0"
+    version: ">=3.6.0,<4.0.0"
   - name: community.windows
     version: ">=3.0.0,<4.0.0"
