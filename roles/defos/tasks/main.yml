@@ -5,6 +5,26 @@
 # so `apply` passes the tags on to the role's tasks; without it, --tags local-accounts would run the include and skip
 # everything in it. The tag list on the include is what lets a role's own tags be selected from here.
 
+# Features run first: adding OpenSSH Server creates an open firewall rule that ans_firewall then replaces, and starts
+# sshd, which creates the sshd_config that ans_local_accounts edits.
+- name: Add and remove Windows features
+  ansible.builtin.include_role:
+    name: ans_features
+    apply:
+      tags: [features]
+  when:
+    - ansible_facts['os_family'] == 'Windows'
+    - defos_enable_features | bool
+  tags: [features, openssh, telnet]
+
+- name: Install and remove packages
+  ansible.builtin.include_role:
+    name: ans_packages
+    apply:
+      tags: [packages]
+  when: defos_enable_packages | bool
+  tags: [packages, powershell]
+
 - name: Configure the firewall
   ansible.builtin.include_role:
     name: ans_firewall

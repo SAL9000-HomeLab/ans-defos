@@ -1,9 +1,12 @@
-DEFOS
 defo
+DEFOS
 eventlogs
 hostvars
 localadmin
 mgmt
+openssh
 pscustomobject
+pwsh
 remoteadmin
+sshd
 Svcs

@@ -1,10 +1,15 @@
 ---
 # roles/defos/defaults/main.yml
 #
-# Each role has its own settings (ans_firewall_*, ans_local_accounts_*): set them directly on the inventory, group or
-# host. They are not passed through this role, because include_role vars would override what the inventory sets.
+# Each role has its own settings (ans_features_*, ans_packages_*, ans_firewall_*, ans_local_accounts_*): set them
+# directly on the inventory, group or host. They are not passed through this role, because include_role vars would
+# override what the inventory sets.
 
 # --- Which roles to apply ---
+# ans_features and ans_packages change nothing until their per-feature and per-package variables are set, such as
+# ans_features_openssh_server: present or ans_packages_powershell: present.
+defos_enable_features: true
+defos_enable_packages: true
 defos_enable_firewall: true
 defos_enable_local_accounts: true
 
